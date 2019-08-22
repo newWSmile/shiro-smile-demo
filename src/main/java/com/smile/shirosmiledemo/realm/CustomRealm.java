@@ -56,12 +56,15 @@ public class CustomRealm extends AuthorizingRealm {
         }
         // 从数据库获取对应用户名密码的用户
         List<User> userList = userRepository.findByUserName(username);
-        if (null == userList || userList.size()==0){
+        if (null == userList || userList.size() == 0) {
             throw new AccountException("用户名不正确");
         }
         User user = userList.get(0);
-        String password = user.getUserPassword();
-        if (! JWTUtil.verify(token, username, Constract.SECRET)) {
+        if (user.getStatus().equals("disable")) {
+            throw new AuthenticationException("该用户已被封号！");
+        }
+
+        if (!JWTUtil.verify(token, username, Constract.SECRET)) {
             throw new AuthenticationException("Username or password error");
         }
         return new SimpleAuthenticationInfo(token, token, getName());
