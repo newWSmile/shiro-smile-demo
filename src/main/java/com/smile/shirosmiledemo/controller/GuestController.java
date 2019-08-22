@@ -1,6 +1,7 @@
 package com.smile.shirosmiledemo.controller;
 
 import com.smile.shirosmiledemo.dto.SmileReturnObject;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,11 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class GuestController {
 
     @RequestMapping(value = "/enter", method = RequestMethod.GET)
+    @RequiresAuthentication
     public SmileReturnObject login() {
         return SmileReturnObject.success("欢迎进入，您的身份是游客");
     }
 
     @RequestMapping(value = "/getMessage", method = RequestMethod.GET)
+    @RequiresAuthentication
     public SmileReturnObject submitLogin() {
         return SmileReturnObject.success("您拥有获得该接口的信息的权限");
     }
