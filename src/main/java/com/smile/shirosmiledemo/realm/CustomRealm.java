@@ -64,7 +64,7 @@ public class CustomRealm extends AuthorizingRealm {
         if (! JWTUtil.verify(token, username, Constract.SECRET)) {
             throw new AuthenticationException("Username or password error");
         }
-        return new SimpleAuthenticationInfo(token, password, getName());
+        return new SimpleAuthenticationInfo(token, token, getName());
     }
 
     /**
