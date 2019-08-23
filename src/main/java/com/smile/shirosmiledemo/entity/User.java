@@ -2,10 +2,7 @@ package com.smile.shirosmiledemo.entity;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -22,7 +19,7 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     /**
      * id
      */
@@ -42,6 +39,12 @@ public class User implements Serializable {
      * 用户类型：admin/high/normal
      */
     private String userType;
+
+
+    /**
+     * 用户邮箱
+     */
+    private String userEmail;
 
     /**
      * 用户加密salt

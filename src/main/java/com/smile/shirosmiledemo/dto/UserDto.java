@@ -16,4 +16,6 @@ public class UserDto {
 
     private String userType;
 
+    private String userEmail;
+
 }

@@ -6,6 +6,7 @@ import com.smile.shirosmiledemo.dto.UserDto;
 import com.smile.shirosmiledemo.entity.User;
 import com.smile.shirosmiledemo.repository.UserRepository;
 import com.smile.shirosmiledemo.utils.JWTUtil;
+import com.smile.shirosmiledemo.utils.Md5Utils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AccountException;
 import org.apache.shiro.subject.Subject;
@@ -62,7 +63,10 @@ public class LoginController {
             throw new AccountException("用户名或密码不正确");
         }
         User user = userList.get(0);
-        if (!user.getUserPassword().equals(userDto.getUserPassword())){
+        String salt = user.getSalt();
+        String userDtoPassword = userDto.getUserPassword();
+
+        if (!user.getUserPassword().equals(Md5Utils.md5Encrypt(userDtoPassword+salt))){
             throw new AccountException("用户名或密码不正确");
         }
         return SmileReturnObject.success(JWTUtil.sign(userDto.getUserName(), Constract.SECRET));
