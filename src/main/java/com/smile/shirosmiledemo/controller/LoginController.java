@@ -1,8 +1,10 @@
 package com.smile.shirosmiledemo.controller;
 
+import com.smile.shirosmiledemo.common.Constract;
 import com.smile.shirosmiledemo.common.LoginToken;
 import com.smile.shirosmiledemo.dto.SmileReturnObject;
 import com.smile.shirosmiledemo.dto.UserDto;
+import com.smile.shirosmiledemo.utils.JWTUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,7 +52,7 @@ public class LoginController {
     public SmileReturnObject login(UserDto userDto) {
         LoginToken token = new LoginToken((userDto.getUserName()),userDto.getUserPassword());
         SecurityUtils.getSubject().login(token);
-        return SmileReturnObject.success(token);
+        return SmileReturnObject.success(JWTUtil.sign(userDto.getUserName(), Constract.SECRET));
     }
 
 

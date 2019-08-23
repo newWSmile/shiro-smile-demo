@@ -1,6 +1,8 @@
 package com.smile.shirosmiledemo.realm;
 
-import com.smile.shirosmiledemo.common.LoginToken;
+import com.smile.shirosmiledemo.common.Constract;
+import com.smile.shirosmiledemo.common.JWTToken;
+import com.smile.shirosmiledemo.common.LoginCredentialsMatcher;
 import com.smile.shirosmiledemo.entity.User;
 import com.smile.shirosmiledemo.repository.UserRepository;
 import com.smile.shirosmiledemo.utils.JWTUtil;
@@ -35,9 +37,14 @@ public class CustomRealm extends AuthorizingRealm {
     @Autowired
     private UserRepository userRepository;
 
+
+    public CustomRealm(){
+        this.setCredentialsMatcher(new LoginCredentialsMatcher());
+    }
+
     @Override
     public boolean supports(AuthenticationToken token) {
-        return token instanceof LoginToken;
+        return token instanceof AuthenticationToken;
     }
 
     /**
@@ -52,44 +59,47 @@ public class CustomRealm extends AuthorizingRealm {
 
         System.out.println("————身份认证方法————");
 
-        UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
-        String username = token.getUsername();
-        List<User> userList = userRepository.findByUserName(username);
-        if (CollectionUtils.isEmpty(userList)) {
-            throw new AccountException("用户名或密码不正确");
+        if (authenticationToken instanceof JWTToken) {
+            String token = (String) authenticationToken.getCredentials();
+            // 解密获得username，用于和数据库进行对比
+            String username = JWTUtil.getUsername(token);
+            if (username == null) {
+                throw new AuthenticationException("token invalid");
+            }
+            // 从数据库获取对应用户名密码的用户
+            List<User> userList = userRepository.findByUserName(username);
+            if (null == userList || userList.size() == 0) {
+                throw new AccountException("用户名或密码不正确");
+            }
+            User user = userList.get(0);
+            if (user.getStatus().equals("disable")) {
+                throw new AuthenticationException("该用户已被停用！");
+            }
+
+            if (!JWTUtil.verify(token, username, Constract.SECRET)) {
+                throw new AuthenticationException("用户名或密码不正确");
+            }
+            return new SimpleAuthenticationInfo(token, token, getName());
+        } else {
+            UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
+            String username = token.getUsername();
+            List<User> userList = userRepository.findByUserName(username);
+            if (CollectionUtils.isEmpty(userList)) {
+                throw new AccountException("用户名或密码不正确");
+            }
+
+            String orginPassword = new String((char[]) token.getCredentials());
+            User user = userList.get(0);
+            String salt = user.getSalt();
+            String encodedPassword = Md5Utils.md5Encrypt(orginPassword + salt);
+            if (!Objects.equals(encodedPassword, user.getUserPassword())) {
+                throw new AccountException("用户名或密码不正确");
+            }
+
+            return new SimpleAuthenticationInfo(user.getUserName(), orginPassword, ByteSource.Util.bytes(salt), getName());
         }
 
-        String orginPassword = new String((char[]) token.getCredentials());
-        User user = userList.get(0);
-        String salt = user.getSalt();
-        String encodedPassword = Md5Utils.md5Encrypt(orginPassword + salt);
-        if (!Objects.equals(encodedPassword, user.getUserPassword())) {
-            throw new AccountException("用户名或密码不正确");
-        }
 
-        return new SimpleAuthenticationInfo(user.getUserName(), orginPassword, ByteSource.Util.bytes(salt), getName());
-
-
-//        String token = (String) authenticationToken.getCredentials();
-////        // 解密获得username，用于和数据库进行对比
-////        String username = JWTUtil.getUsername(token);
-////        if (username == null) {
-////            throw new AuthenticationException("token invalid");
-////        }
-////        // 从数据库获取对应用户名密码的用户
-////        List<User> userList = userRepository.findByUserName(username);
-////        if (null == userList || userList.size() == 0) {
-////            throw new AccountException("用户名或密码不正确");
-////        }
-////        User user = userList.get(0);
-////        if (user.getStatus().equals("disable")) {
-////            throw new AuthenticationException("该用户已被停用！");
-////        }
-////
-////        if (!JWTUtil.verify(token, username, Constract.SECRET)) {
-////            throw new AuthenticationException("用户名或密码不正确");
-////        }
-////        return new SimpleAuthenticationInfo(token, token, getName());
     }
 
     /**
