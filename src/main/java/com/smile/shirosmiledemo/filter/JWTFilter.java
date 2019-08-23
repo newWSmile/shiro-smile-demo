@@ -1,6 +1,7 @@
 package com.smile.shirosmiledemo.filter;
 
-import com.smile.shirosmiledemo.common.JWTToken;
+import com.smile.shirosmiledemo.common.LoginToken;
+import com.smile.shirosmiledemo.utils.JWTUtil;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.slf4j.Logger;
@@ -62,9 +63,10 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String token = httpServletRequest.getHeader("Token");
-        JWTToken jwtToken = new JWTToken(token);
+        String username = JWTUtil.getUsername(token);
+        LoginToken loginToken = new LoginToken(username);
         // 提交给realm进行登入，如果错误他会抛出异常并被捕获
-        getSubject(request, response).login(jwtToken);
+        getSubject(request, response).login(loginToken);
         // 如果没有抛出异常则代表登入成功，返回true
         return true;
     }
