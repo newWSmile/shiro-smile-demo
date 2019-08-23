@@ -1,5 +1,6 @@
 package com.smile.shirosmiledemo.filter;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.smile.shirosmiledemo.common.LoginToken;
 import com.smile.shirosmiledemo.utils.JWTUtil;
 import org.apache.shiro.authz.UnauthorizedException;
@@ -44,6 +45,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
         //如果请求头不存在 Token，则可能是执行登陆操作或者是游客状态访问，无需检查 token，直接返回 true
         return true;
     }
+
 
     /**
      * 判断用户是否想要登入。
@@ -102,4 +104,6 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
             logger.error(e.getMessage());
         }
     }
+
+
 }

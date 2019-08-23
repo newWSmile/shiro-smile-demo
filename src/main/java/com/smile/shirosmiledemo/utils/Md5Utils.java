@@ -1,5 +1,7 @@
 package com.smile.shirosmiledemo.utils;
 
+import org.apache.shiro.crypto.hash.SimpleHash;
+
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -39,9 +41,7 @@ public class Md5Utils {
             }
             sb.append(Integer.toHexString(var));
         }
-        return sb.toString().toUpperCase();
+        return sb.toString();
     }
-
-
 
 }

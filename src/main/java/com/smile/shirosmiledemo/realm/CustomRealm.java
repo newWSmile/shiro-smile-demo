@@ -38,7 +38,7 @@ public class CustomRealm extends AuthorizingRealm {
     private UserRepository userRepository;
 
 
-    public CustomRealm(){
+    public CustomRealm() {
         LoginCredentialsMatcher loginCredentialsMatcher = new LoginCredentialsMatcher();
         //散列算法:这里使用MD5算法
         loginCredentialsMatcher.setHashAlgorithmName("MD5");
@@ -64,45 +64,15 @@ public class CustomRealm extends AuthorizingRealm {
 
         System.out.println("————身份认证方法————");
 
-        if (authenticationToken instanceof JWTToken) {
-            String token = (String) authenticationToken.getCredentials();
-            // 解密获得username，用于和数据库进行对比
-            String username = JWTUtil.getUsername(token);
-            if (username == null) {
-                throw new AuthenticationException("token invalid");
-            }
-            // 从数据库获取对应用户名密码的用户
-            List<User> userList = userRepository.findByUserName(username);
-            if (null == userList || userList.size() == 0) {
-                throw new AccountException("用户名或密码不正确");
-            }
-            User user = userList.get(0);
-            if (user.getStatus().equals("disable")) {
-                throw new AuthenticationException("该用户已被停用！");
-            }
-
-            if (!JWTUtil.verify(token, username, Constract.SECRET)) {
-                throw new AuthenticationException("用户名或密码不正确");
-            }
-            return new SimpleAuthenticationInfo(token, token, getName());
-        } else {
-            UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
-            String username = token.getUsername();
-            List<User> userList = userRepository.findByUserName(username);
-            if (CollectionUtils.isEmpty(userList)) {
-                throw new AccountException("用户名或密码不正确");
-            }
-
-            String orginPassword = new String((char[]) token.getCredentials());
-            User user = userList.get(0);
-            String salt = user.getSalt();
-            String encodedPassword = Md5Utils.md5Encrypt(orginPassword + salt);
-            if (!Objects.equals(encodedPassword, user.getUserPassword())) {
-                throw new AccountException("用户名或密码不正确");
-            }
-
-            return new SimpleAuthenticationInfo(user.getUserName(), user.getUserPassword(), ByteSource.Util.bytes(salt), getName());
+        UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
+        String username = token.getUsername();
+        List<User> userList = userRepository.findByUserName(username);
+        if (CollectionUtils.isEmpty(userList)) {
+            throw new UnknownAccountException();
         }
+        User user = userList.get(0);
+        String salt = user.getSalt();
+        return new SimpleAuthenticationInfo(user.getUserName(), user.getUserPassword(), ByteSource.Util.bytes(salt), getName());
 
 
     }
@@ -117,7 +87,7 @@ public class CustomRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
 
         System.out.println("————权限认证————");
-        String username = JWTUtil.getUsername(principalCollection.toString());
+        String username = principalCollection.toString();
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         //获得该用户角色
         List<User> userList = userRepository.findByUserName(username);
