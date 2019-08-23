@@ -1,5 +1,6 @@
 package com.smile.shirosmiledemo.configuration;
 
+import com.smile.shirosmiledemo.common.LoginCredentialsMatcher;
 import com.smile.shirosmiledemo.filter.JWTFilter;
 import com.smile.shirosmiledemo.realm.CustomRealm;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
@@ -100,7 +101,8 @@ public class ShiroConfiguration {
      */
     @Bean
     public HashedCredentialsMatcher loginCredentialsMatcher() {
-        HashedCredentialsMatcher loginCredentialsMatcher = new HashedCredentialsMatcher();
+        System.out.println(">>>>>>>>>>>>>>初始化Shiro凭证匹配器<<<<<<<<<<<<<<");
+        HashedCredentialsMatcher loginCredentialsMatcher = new LoginCredentialsMatcher();
         //散列算法:这里使用MD5算法
         loginCredentialsMatcher.setHashAlgorithmName("MD5");
         //散列的次数，比如散列两次，相当于 md5(md5(""))
