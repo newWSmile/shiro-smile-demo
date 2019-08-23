@@ -39,7 +39,12 @@ public class CustomRealm extends AuthorizingRealm {
 
 
     public CustomRealm(){
-        this.setCredentialsMatcher(new LoginCredentialsMatcher());
+        LoginCredentialsMatcher loginCredentialsMatcher = new LoginCredentialsMatcher();
+        //散列算法:这里使用MD5算法
+        loginCredentialsMatcher.setHashAlgorithmName("MD5");
+        //散列的次数，比如散列两次，相当于 md5(md5(""))
+        loginCredentialsMatcher.setHashIterations(1);
+        this.setCredentialsMatcher(loginCredentialsMatcher);
     }
 
     @Override
@@ -96,7 +101,7 @@ public class CustomRealm extends AuthorizingRealm {
                 throw new AccountException("用户名或密码不正确");
             }
 
-            return new SimpleAuthenticationInfo(user.getUserName(), orginPassword, ByteSource.Util.bytes(salt), getName());
+            return new SimpleAuthenticationInfo(user.getUserName(), user.getUserPassword(), ByteSource.Util.bytes(salt), getName());
         }
 
 

@@ -22,6 +22,7 @@ public class ExceptionController {
     // 捕捉 CustomRealm 抛出的异常
     @ExceptionHandler(AccountException.class)
     public SmileReturnObject handleShiroException(Exception ex) {
+        ex.printStackTrace();
         return SmileReturnObject.error(ex.getMessage());
     }
 
@@ -29,6 +30,7 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(ShiroException.class)
     public SmileReturnObject handle401(ShiroException e) {
+        e.printStackTrace();
         return SmileReturnObject.error(e.getMessage());
     }
 
@@ -43,6 +45,7 @@ public class ExceptionController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public SmileReturnObject globalException(HttpServletRequest request, Throwable ex) {
+        ex.printStackTrace();
         return SmileReturnObject.error(ex.getMessage());
     }
 }
