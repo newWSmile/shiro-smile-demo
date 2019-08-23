@@ -1,7 +1,7 @@
 package com.smile.shirosmiledemo.configuration;
 
 import com.smile.shirosmiledemo.filter.JWTFilter;
-import com.smile.shirosmiledemo.realm.CustomRealm;
+import com.smile.shirosmiledemo.realm.UserRealm;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -61,10 +61,10 @@ public class ShiroConfiguration {
      * 此处可以自定义cachemanager 使用redis保存权限和角色信息
      */
     @Bean
-    public DefaultWebSecurityManager securityManager(CustomRealm customRealm, DefaultWebSessionManager sessionManager) {
+    public DefaultWebSecurityManager securityManager(UserRealm userRealm, DefaultWebSessionManager sessionManager) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         // 设置自定义 realm.
-        securityManager.setRealm(customRealm);
+        securityManager.setRealm(userRealm);
         securityManager.setSessionManager(sessionManager);
         return securityManager;
     }

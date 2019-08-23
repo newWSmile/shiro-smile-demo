@@ -25,9 +25,9 @@ import java.util.Set;
  * @description：
  */
 @Component
-public class CustomRealm extends AuthorizingRealm {
+public class UserRealm extends AuthorizingRealm {
 
-    private static final Logger LOGGER = LogManager.getLogger(CustomRealm.class);
+    private static final Logger LOGGER = LogManager.getLogger(UserRealm.class);
 
     @Autowired
     private UserRepository userRepository;
